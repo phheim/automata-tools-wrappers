@@ -1,0 +1,177 @@
+randaut (spot) 2.9.6
+
+Usage: randaut [OPTION...] N|PROP...
+Generate random connected automata.
+
+The automata are built over the atomic propositions named by PROPS...
+or, if N is a nonnegative number, using N arbitrary names.
+If the edge density is set to D, and the number of states to Q, the degree
+of each state follows a normal distribution with mean 1+(Q-1)D and
+variance (Q-1)D(1-D).  In particular, for D=0 all states have a single
+successor, while for D=1 all states are interconnected.
+
+ Generation:
+  -a, --acc-probability=FLOAT   probability that an edge belongs to one
+                             acceptance set (0.2)
+  -A, --acceptance=ACCEPTANCE   specify the acceptance type of the automaton
+  -B, --ba                   build a Buchi automaton (implies
+                             --acceptance=Buchi --state-acc)
+      --colored              build an automaton in which each edge (or state if
+                             combined with -S) belong to a single acceptance
+                             set
+  -D, --deterministic        build a complete, deterministic automaton 
+  -e, --density=FLOAT        density of the edges (0.2)
+  -n, --automata=INT         number of automata to output (1)
+                             use a negative value for unbounded generation
+  -Q, --states=RANGE         number of states to output (10)
+      --seed=INT             seed for the random number generator (0)
+  -S, --state-based-acceptance, --sbacc
+                             used state-based acceptance
+  -u, --unique               do not output the same automaton twice (same in
+                             the sense that they are isomorphic)
+
+ RANGE may have one of the following forms: 'INT', 'INT..INT', or '..INT'.
+ In the latter case, the missing number is assumed to be 1.
+
+ ACCEPTANCE may be either a RANGE (in which case generalized Büchi is
+ assumed), or an arbitrary acceptance formula such as 'Fin(0)|Inf(1)&Fin(2)' in
+ the same syntax as in the HOA format, or one of the following patterns:
+   none
+   all
+   Buchi
+   co-Buchi
+   generalized-Buchi RANGE
+   generalized-co-Buchi RANGE
+   Rabin RANGE
+   Streett RANGE
+   generalized-Rabin INT RANGE RANGE ... RANGE
+   parity (min|max|rand) (odd|even|rand) RANGE
+   random RANGE
+   random RANGE PROBABILITY
+ The random acceptance condition uses each set only once, unless a probability
+ (to reuse the set again every time it is used) is given.
+
+ Output format:
+  -8, --utf8                 enable UTF-8 characters in output (ignored with
+                             --lbtt or --spin)
+      --check[=PROP]         test for the additional property PROP and output
+                             the result in the HOA format (implies -H).  PROP
+                             may be some prefix of 'all' (default),
+                             'unambiguous', 'stutter-invariant',
+                             'stutter-sensitive-example', 'semi-determinism',
+                             or 'strength'.
+  -d, --dot[=1|a|A|b|B|c|C(COLOR)|e|E|f(FONT)|h|k|K|n|N|o|r|R|s|t|u|v|y|+INT|<INT|#]                             
+                             GraphViz's format.  Add letters for (1) force
+                             numbered states, (a) show acceptance condition
+                             (default), (A) hide acceptance condition, (b)
+                             acceptance sets as bullets, (B) bullets except for
+                             Büchi/co-Büchi automata, (c) force circular
+                             nodes, (C) color nodes with COLOR, (d) show
+                             origins when known, (e) force elliptic nodes, (E)
+                             force rEctangular nodes, (f(FONT)) use FONT, (g)
+                             hide edge labels, (h) horizontal layout, (k) use
+                             state labels when possible, (K) use transition
+                             labels (default), (n) show name, (N) hide name,
+                             (o) ordered transitions, (r) rainbow colors for
+                             acceptance sets, (R) color acceptance sets by
+                             Inf/Fin, (s) with SCCs, (t) force transition-based
+                             acceptance, (u) hide true states, (v) vertical
+                             layout, (y) split universal edges by color, (+INT)
+                             add INT to all set numbers, (<INT) display at most
+                             INT states, (#) show internal edge numbers
+  -H, --hoaf[=1.1|i|k|l|m|s|t|v]   Output the automaton in HOA format
+                             (default).  Add letters to select (1.1) version
+                             1.1 of the format, (i) use implicit labels for
+                             complete deterministic automata, (s) prefer
+                             state-based acceptance when possible [default],
+                             (t) force transition-based acceptance, (m) mix
+                             state and transition-based acceptance, (k) use
+                             state labels when possible, (l) single-line
+                             output, (v) verbose properties
+      --lbtt[=t]             LBTT's format (add =t to force transition-based
+                             acceptance even on Büchi automata)
+      --name=FORMAT          set the name of the output automaton
+  -o, --output=FORMAT        send output to a file named FORMAT instead of
+                             standard output.  The first automaton sent to a
+                             file truncates it unless FORMAT starts with '>>'.
+  -q, --quiet                suppress all normal output
+  -s, --spin[=6|c]           Spin neverclaim (implies --ba).  Add letters to
+                             select (6) Spin's 6.2.4 style, (c) comments on
+                             states
+      --stats=FORMAT, --format=FORMAT
+                             output statistics about the automaton
+
+ Any FORMAT string may use the following interpreted sequences:
+  %%                         a single %
+  %a                         number of acceptance sets
+  %c, %[LETTERS]c            number of SCCs; you may filter the SCCs to count
+                             using the following LETTERS, possibly
+                             concatenated: (a) accepting, (r) rejecting, (c)
+                             complete, (v) trivial, (t) terminal, (w) weak,
+                             (iw) inherently weak. Use uppercase letters to
+                             negate them.
+  %d                         1 if the output is deterministic, 0 otherwise
+  %e                         number of reachable edges
+  %F                         seed number
+  %g, %[LETTERS]g            acceptance condition (in HOA syntax); add brackets
+                             to print an acceptance name instead and LETTERS to
+                             tweak the format: (0) no parameters, (a)
+                             accentuated, (b) abbreviated, (d) style used in
+                             dot output, (g) no generalized parameter, (l)
+                             recognize Street-like and Rabin-like, (m) no main
+                             parameter, (p) no parity parameter, (o) name
+                             unknown acceptance as 'other', (s) shorthand for
+                             'lo0'.
+  %h                         the automaton in HOA format on a single line (use
+                             %[opt]h to specify additional options as in
+                             --hoa=opt)
+  %L                         automaton number
+  %m                         name of the automaton
+  %n                         number of nondeterministic states in output
+  %p                         1 if the output is complete, 0 otherwise
+  %r                         wall-clock time elapsed in seconds (excluding
+                             parsing)
+  %R, %[LETTERS]R            CPU time (excluding parsing), in seconds; Add
+                             LETTERS to restrict to(u) user time, (s) system
+                             time, (p) parent process, or (c) children
+                             processes.
+  %s                         number of reachable states
+  %t                         number of reachable transitions
+  %u, %[e]u                  number of states (or [e]dges) with universal
+                             branching
+  %u, %[LETTER]u             1 if the automaton contains some universal
+                             branching (or a number of [s]tates or [e]dges with
+                             universal branching)
+  %w                         one word accepted by the output automaton
+  %x, %[LETTERS]x            number of atomic propositions declared in the
+                             automaton;  add LETTERS to list atomic
+                             propositions with (n) no quoting, (s) occasional
+                             double-quotes with C-style escape, (d)
+                             double-quotes with C-style escape, (c)
+                             double-quotes with CSV-style escape, (p) between
+                             parentheses, any extra non-alphanumeric character
+                             will be used to separate propositions
+
+ Miscellaneous options:
+      --help                 print this help
+      --version              print program version
+
+Mandatory or optional arguments to long options are also mandatory or optional
+for any corresponding short options.
+
+Examples:
+
+This builds a random neverclaim with 4 states and labeled using the two
+atomic propositions "a" and "b":
+  % randaut --spin -Q4 a b
+
+This builds three random, complete, and deterministic TGBA with 5 to 10
+states, 1 to 3 acceptance sets, and three atomic propositions:
+  % randaut -n3 -D -H -Q5..10 -A1..3 3
+
+Build 3 random, complete, and deterministic Rabin automata
+with 2 to 3 acceptance pairs, state-based acceptance, 8 states, 
+a high density of edges, and 3 to 4 atomic propositions:
+  % randaut -n3 -D -H -Q8 -e.8 -S -A 'Rabin 2..3' 3..4
+
+Report bugs to <spot@lrde.epita.fr>.

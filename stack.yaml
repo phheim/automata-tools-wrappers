@@ -1,0 +1,6 @@
+resolver: lts-14.17
+packages:
+- .
+extra-deps:
+- git: ssh://git@git.intelligent-conception.de:4352/libraries/hanoi
+  commit: ce0790b6cf26785b5ac521859b47f8974c7c6d2c

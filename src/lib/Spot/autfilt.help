@@ -1,0 +1,362 @@
+autfilt (spot) 2.9.6
+
+Usage: autfilt [OPTION...] [FILENAME[/COL]...]
+Convert, transform, and filter omega-automata.
+
+ Input:
+  -F, --file=FILENAME        process the automaton in FILENAME
+      --trust-hoa=BOOL       If false, properties listed in HOA files are
+                             ignored, unless they can be easily verified.  If
+                             true (the default) any supported property is
+                             trusted.
+
+ Output automaton type:
+  -B, --ba                   Büchi Automaton (with state-based acceptance)
+      --cobuchi, --coBuchi   automaton with co-Büchi acceptance (will
+                             recognize a superset of the input language if not
+                             co-Büchi realizable)
+  -C, --complete             output a complete automaton
+  -G, --generic              any acceptance is allowed (default)
+  -M, --monitor              Monitor (accepts all finite prefixes of the given
+                             property)
+  -p, --colored-parity[=any|min|max|odd|even|min odd|min even|max odd|max
+      even]                  colored automaton with parity acceptance
+  -P, --parity[=any|min|max|odd|even|min odd|min even|max odd|max even]
+                             automaton with parity acceptance
+  -S, --state-based-acceptance, --sbacc
+                             define the acceptance using states
+      --tgba                 Transition-based Generalized Büchi Automaton
+
+ Output format:
+  -8, --utf8                 enable UTF-8 characters in output (ignored with
+                             --lbtt or --spin)
+  -c, --count                print only a count of matched automata
+      --check[=PROP]         test for the additional property PROP and output
+                             the result in the HOA format (implies -H).  PROP
+                             may be some prefix of 'all' (default),
+                             'unambiguous', 'stutter-invariant',
+                             'stutter-sensitive-example', 'semi-determinism',
+                             or 'strength'.
+  -d, --dot[=1|a|A|b|B|c|C(COLOR)|e|E|f(FONT)|h|k|K|n|N|o|r|R|s|t|u|v|y|+INT|<INT|#]                             
+                             GraphViz's format.  Add letters for (1) force
+                             numbered states, (a) show acceptance condition
+                             (default), (A) hide acceptance condition, (b)
+                             acceptance sets as bullets, (B) bullets except for
+                             Büchi/co-Büchi automata, (c) force circular
+                             nodes, (C) color nodes with COLOR, (d) show
+                             origins when known, (e) force elliptic nodes, (E)
+                             force rEctangular nodes, (f(FONT)) use FONT, (g)
+                             hide edge labels, (h) horizontal layout, (k) use
+                             state labels when possible, (K) use transition
+                             labels (default), (n) show name, (N) hide name,
+                             (o) ordered transitions, (r) rainbow colors for
+                             acceptance sets, (R) color acceptance sets by
+                             Inf/Fin, (s) with SCCs, (t) force transition-based
+                             acceptance, (u) hide true states, (v) vertical
+                             layout, (y) split universal edges by color, (+INT)
+                             add INT to all set numbers, (<INT) display at most
+                             INT states, (#) show internal edge numbers
+  -H, --hoaf[=1.1|i|k|l|m|s|t|v]   Output the automaton in HOA format
+                             (default).  Add letters to select (1.1) version
+                             1.1 of the format, (i) use implicit labels for
+                             complete deterministic automata, (s) prefer
+                             state-based acceptance when possible [default],
+                             (t) force transition-based acceptance, (m) mix
+                             state and transition-based acceptance, (k) use
+                             state labels when possible, (l) single-line
+                             output, (v) verbose properties
+      --lbtt[=t]             LBTT's format (add =t to force transition-based
+                             acceptance even on Büchi automata)
+  -n, --max-count=NUM        output at most NUM automata
+      --name=FORMAT          set the name of the output automaton
+  -o, --output=FORMAT        send output to a file named FORMAT instead of
+                             standard output.  The first automaton sent to a
+                             file truncates it unless FORMAT starts with '>>'.
+  -q, --quiet                suppress all normal output
+  -s, --spin[=6|c]           Spin neverclaim (implies --ba).  Add letters to
+                             select (6) Spin's 6.2.4 style, (c) comments on
+                             states
+      --stats=FORMAT, --format=FORMAT
+                             output statistics about the automaton
+
+ Any FORMAT string may use the following interpreted sequences (capitals for
+ input, minuscules for output):
+  %%                         a single %
+  %<                         the part of the line before the automaton if it
+                             comes from a column extracted from a CSV file
+  %>                         the part of the line after the automaton if it
+                             comes from a column extracted from a CSV file
+  %A, %a                     number of acceptance sets
+  %C, %c, %[LETTERS]C, %[LETTERS]c
+                             number of SCCs; you may filter the SCCs to count
+                             using the following LETTERS, possibly
+                             concatenated: (a) accepting, (r) rejecting, (c)
+                             complete, (v) trivial, (t) terminal, (w) weak,
+                             (iw) inherently weak. Use uppercase letters to
+                             negate them.
+  %D, %d                     1 if the automaton is deterministic, 0 otherwise
+  %E, %e                     number of reachable edges
+  %F                         name of the input file
+  %G, %g, %[LETTERS]G, %[LETTERS]g
+                             acceptance condition (in HOA syntax); add brackets
+                             to print an acceptance name instead and LETTERS to
+                             tweak the format: (0) no parameters, (a)
+                             accentuated, (b) abbreviated, (d) style used in
+                             dot output, (g) no generalized parameter, (l)
+                             recognize Street-like and Rabin-like, (m) no main
+                             parameter, (p) no parity parameter, (o) name
+                             unknown acceptance as 'other', (s) shorthand for
+                             'lo0'.
+  %H, %h                     the automaton in HOA format on a single line (use
+                             %[opt]H or %[opt]h to specify additional options
+                             as in --hoa=opt)
+  %L                         location in the input file
+  %M, %m                     name of the automaton
+  %N, %n                     number of nondeterministic states
+  %P, %p                     1 if the automaton is complete, 0 otherwise
+  %r                         wall-clock time elapsed in seconds (excluding
+                             parsing)
+  %R, %[LETTERS]R            CPU time (excluding parsing), in seconds; Add
+                             LETTERS to restrict to(u) user time, (s) system
+                             time, (p) parent process, or (c) children
+                             processes.
+  %S, %s                     number of reachable states
+  %T, %t                     number of reachable transitions
+  %U, %u, %[LETTER]U, %[LETTER]u   1 if the automaton contains some universal
+                             branching (or a number of [s]tates or [e]dges with
+                             universal branching)
+  %W, %w                     one word accepted by the automaton
+  %X, %x, %[LETTERS]X, %[LETTERS]x
+                             number of atomic propositions declared in the
+                             automaton;  add LETTERS to list atomic
+                             propositions with (n) no quoting, (s) occasional
+                             double-quotes with C-style escape, (d)
+                             double-quotes with C-style escape, (c)
+                             double-quotes with CSV-style escape, (p) between
+                             parentheses, any extra non-alphanumeric character
+                             will be used to separate propositions
+
+ Filtering options:
+      --acc-sccs=RANGE, --accepting-sccs=RANGE
+                             keep automata whose number of non-trivial
+                             accepting SCCs is in RANGE
+      --acc-sets=RANGE       keep automata whose number of acceptance sets is
+                             in RANGE
+      --accept-word=WORD     keep automata that accept WORD
+      --acceptance-is=NAME|FORMULA
+                             match automata with given acceptance condition
+      --ap=RANGE             match automata with a number of (declared) atomic
+                             propositions in RANGE
+      --are-isomorphic=FILENAME   keep automata that are isomorphic to the
+                             automaton in FILENAME
+      --edges=RANGE          keep automata whose number of edges is in RANGE
+      --equivalent-to=FILENAME   keep automata that are equivalent
+                             (language-wise) to the automaton in FILENAME
+      --has-exist-branching  keep automata that use existential branching
+                             (i.e., make non-deterministic choices)
+      --has-univ-branching   keep alternating automata that use universal
+                             branching
+      --included-in=FILENAME keep automata whose languages are included in that
+                             of the automaton from FILENAME
+      --inherently-weak-sccs=RANGE
+                             keep automata whose number of accepting
+                             inherently-weak SCCs is in RANGE.  An accepting
+                             SCC is inherently weak if it does not have a
+                             rejecting cycle.
+      --intersect=FILENAME   keep automata whose languages have an non-empty
+                             intersection with the automaton from FILENAME
+      --is-alternating       keep only automata using universal branching
+      --is-colored           keep colored automata (i.e., exactly one
+                             acceptance mark per transition or state)
+      --is-complete          keep complete automata
+      --is-deterministic     keep deterministic automata
+      --is-empty             keep automata with an empty language
+      --is-inherently-weak   keep only inherently weak automata
+      --is-semi-deterministic   keep semi-deterministic automata
+      --is-stutter-invariant keep automata representing stutter-invariant
+                             properties
+      --is-terminal          keep only terminal automata
+      --is-unambiguous       keep only unambiguous automata
+      --is-very-weak         keep only very-weak automata
+      --is-weak              keep only weak automata
+      --nondet-states=RANGE  keep automata whose number of nondeterministic
+                             states is in RANGE
+  -N, --nth=RANGE            assuming input automata are numbered from 1, keep
+                             only those in RANGE
+      --rej-sccs=RANGE, --rejecting-sccs=RANGE
+                             keep automata whose number of non-trivial
+                             rejecting SCCs is in RANGE
+      --reject-word=WORD     keep automata that reject WORD
+      --sccs=RANGE           keep automata whose number of SCCs is in RANGE
+      --states=RANGE         keep automata whose number of states is in RANGE
+      --terminal-sccs=RANGE  keep automata whose number of accepting terminal
+                             SCCs is in RANGE.  Terminal SCCs are weak and
+                             complete.
+      --triv-sccs=RANGE, --trivial-sccs=RANGE
+                             keep automata whose number of trivial SCCs is in
+                             RANGE
+      --unused-ap=RANGE      match automata with a number of declared, but
+                             unused atomic propositions in RANGE
+      --used-ap=RANGE        match automata with a number of used atomic
+                             propositions in RANGE
+  -u, --unique               do not output the same automaton twice (same in
+                             the sense that they are isomorphic)
+  -v, --invert-match         select non-matching automata
+      --weak-sccs=RANGE      keep automata whose number of accepting weak SCCs
+                             is in RANGE.  In a weak SCC, all transitions
+                             belong to the same acceptance sets.
+
+ RANGE may have one of the following forms: 'INT', 'INT..INT', '..INT', or
+ 'INT..'
+
+ WORD is lasso-shaped and written as 'BF;BF;...;BF;cycle{BF;...;BF}' where BF
+ are arbitrary Boolean formulas.  The 'cycle{...}' part is mandatory, but the
+ prefix can be omitted.
+
+ Transformations:
+      --cleanup-acceptance   remove unused acceptance sets from the automaton
+      --cnf-acceptance       put the acceptance condition in Conjunctive Normal
+                             Form
+      --complement           complement each automaton (different strategies
+                             are used)
+      --complement-acceptance   complement the acceptance condition (without
+                             touching the automaton)
+      --decompose-scc=t|w|s|N|aN, --decompose-strength=t|w|s|N|aN
+                             extract the (t) terminal, (w) weak, or (s) strong
+                             part of an automaton or (N) the subautomaton
+                             leading to the Nth SCC, or (aN) to the Nth
+                             accepting SCC (option can be combined with commas
+                             to extract multiple parts)
+      --destut               allow less stuttering
+      --dnf-acceptance       put the acceptance condition in Disjunctive Normal
+                             Form
+      --dualize              dualize each automaton
+      --exclusive-ap=AP,AP,...   if any of those APs occur in the automaton,
+                             restrict all edges to ensure two of them may not
+                             be true at the same time.  Use this option
+                             multiple times to declare independent groups of
+                             exclusive propositions.
+      --generalized-rabin[=unique-inf|share-inf], --gra[=unique-inf|share-inf]
+                             rewrite the acceptance condition as generalized
+                             Rabin; the default "unique-inf" option uses the
+                             generalized Rabin definition from the HOA format;
+                             the "share-inf" option allows clauses to share Inf
+                             sets, therefore reducing the number of sets
+      --generalized-streett[=unique-fin|share-fin], --gsa[=unique-fin|share-fin]                             
+                             rewrite the acceptance condition as generalized
+                             Streett; the "share-fin" option allows clauses to
+                             share Fin sets, therefore reducing the number of
+                             sets; the default "unique-fin" does not
+      --instut[=1|2]         allow more stuttering (two possible algorithms)
+      --keep-states=NUM[,NUM...]   only keep specified states.  The first state
+                             will be the new initial state.  Implies
+                             --remove-unreachable-states.
+      --mask-acc=NUM[,NUM...]   remove all transitions in specified acceptance
+                             sets
+      --merge-transitions    merge transitions with same destination and
+                             acceptance
+      --partial-degeneralize[=NUM1,NUM2,...]
+                             Degeneralize automata according to sets
+                             NUM1,NUM2,... If no sets are given, partial
+                             degeneralization is performed for all conjunctions
+                             of Inf and disjunctions of Fin.
+      --product=FILENAME, --product-and=FILENAME
+                             build the product with the automaton in FILENAME
+                             to intersect languages
+      --product-or=FILENAME  build the product with the automaton in FILENAME
+                             to sum languages
+      --randomize[=s|t]      randomize states and transitions (specify 's' or
+                             't' to randomize only states or transitions)
+      --remove-ap=AP[=0|=1][,AP...]
+                             remove atomic propositions either by existential
+                             quantification, or by assigning them 0 or 1
+      --remove-dead-states   remove states that are unreachable, or that cannot
+                             belong to an infinite path
+      --remove-fin           rewrite the automaton without using Fin
+                             acceptance
+      --remove-unreachable-states
+                             remove states that are unreachable from the
+                             initial state
+      --remove-unused-ap     remove declared atomic propositions that are not
+                             used
+      --sat-minimize[=options]   minimize the automaton using a SAT solver
+                             (only works for deterministic automata). Supported
+                             options are acc=STRING, states=N, max-states=N,
+                             sat-incr=N, sat-incr-steps=N, sat-langmap,
+                             sat-naive, colored, preproc=N. Spot uses by
+                             default its PicoSAT distribution but an external
+                             SATsolver can be set thanks to the SPOT_SATSOLVER
+                             environment variable(see spot-x).
+      --separate-sets        if both Inf(x) and Fin(x) appear in the acceptance
+                             condition, replace Fin(x) by a new Fin(y) and
+                             adjust the automaton
+      --simplify-acceptance  simplify the acceptance condition by merging
+                             identical acceptance sets and by simplifying some
+                             terms containing complementary sets
+      --simplify-exclusive-ap   if --exclusive-ap is used, assume those AP
+                             groups are actually exclusive in the system to
+                             simplify the expression of transition labels
+                             (implies --merge-transitions)
+      --split-edges          split edges into transitions labeled by
+                             conjunctions of all atomic propositions, so they
+                             can be read as letters
+      --streett-like         convert to an automaton with Streett-like
+                             acceptance. Works only with acceptance condition
+                             in DNF
+      --strip-acceptance     remove the acceptance condition and all acceptance
+                             sets
+      --sum=FILENAME, --sum-or=FILENAME
+                             build the sum with the automaton in FILENAME to
+                             sum languages
+      --sum-and=FILENAME     build the sum with the automaton in FILENAME to
+                             intersect languages
+
+ Decorations (for -d and -H1.1 output):
+      --highlight-accepting-run[=NUM]
+                             highlight one accepting run using color NUM
+      --highlight-languages  highlight states that recognize identical
+                             languages
+      --highlight-nondet[=NUM]   highlight nondeterministic states and edges
+                             with color NUM
+      --highlight-nondet-edges[=NUM]
+                             highlight nondeterministic edges with color NUM
+      --highlight-nondet-states[=NUM]
+                             highlight nondeterministic states with color NUM
+      --highlight-word=[NUM,]WORD
+                             highlight one run matching WORD using color NUM
+
+ Simplification goal:
+  -a, --any                  no preference, do not bother making it small or
+                             deterministic
+  -D, --deterministic        prefer deterministic automata (combine with
+                             --generic to be sure to obtain a deterministic
+                             automaton)
+      --small                prefer small automata
+
+ Simplification level:
+      --high                 all available optimizations (slow)
+      --low                  minimal optimizations (fast)
+      --medium               moderate optimizations
+
+ If any option among --small, --deterministic, or --any is given, then the
+ simplification level defaults to --high unless specified otherwise.  If any
+ option among --low, --medium, or --high is given, then the simplification goal
+ defaults to --small unless specified otherwise.  If none of those options are
+ specified, then autfilt acts as is --any --low were given: these actually
+ disable the simplification routines.
+
+ Miscellaneous options:
+      --seed=INT             seed for the random number generator (0)
+  -x, --extra-options=OPTS   fine-tuning options (see spot-x (7))
+      --help                 print this help
+      --version              print program version
+
+Mandatory or optional arguments to long options are also mandatory or optional
+for any corresponding short options.
+
+Exit status:
+  0  if some automata were output
+  1  if no automata were output (no match)
+  2  if any error has been reported
+
+Report bugs to <spot@lrde.epita.fr>.

@@ -1,0 +1,70 @@
+name:                automata-tools-wrappers
+version:             0.0.0.1
+synopsis:            Library featuring wrappers for automata tools
+description:         Library featuring wrappers for automata tools such as ltl2tgba, autfilt, randaut (Spot)
+author:              Marvin Stenger <marvin.stenger@cispa.de>
+maintainer:          marvin.stenger@cispa.de
+category:            Automata LTL 
+build-type:          Simple
+cabal-version:       >=1.10
+
+source-repository head
+  type:     git
+  location: ssh://git@projects.cispa.saarland:c01mast/automata-tools-wrappers.git
+
+library
+
+  ghc-options:
+    -Wall -Wno-name-shadowing -fno-ignore-asserts
+
+  build-depends:
+      base >=4.7 && <4.13
+    , containers >= 0.6.0.1
+    , directory >= 1.3.3.0
+    , temporary >= 1.3
+    , process >= 1.6.5.0
+
+
+  exposed-modules:
+    Spot.LTL2TGBA
+    Spot.Autfilt
+    Spot.Randaut
+
+  other-modules:
+
+  hs-source-dirs:
+    src/lib
+
+  default-language:
+    Haskell2010
+
+
+test-suite default
+  type:
+    detailed-0.9
+
+  test-module:
+    Test
+
+  other-modules:
+      LTL2TGBATest
+    , Spot.LTL2TGBA
+
+  hs-source-dirs:
+    src/test
+    src/lib
+
+  ghc-options:
+    -Wall -Wno-name-shadowing -fno-ignore-asserts
+  
+  build-depends:
+      base >=4.7 && <4.13
+    , containers >= 0.6.0.1
+    , QuickCheck
+    , Cabal >=2.4
+    , directory >= 1.3.3.0
+    , filepath >= 1.4.2.1
+    , process >= 1.6.5.0
+
+  default-language:
+    Haskell2010
