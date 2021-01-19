@@ -68,10 +68,10 @@ module Spot.Autfilt
 
 -----------------------------------------------------------------------------
 
-import System.Directory (findExecutable)
+import Utils (cmd)
+
 import System.Exit (ExitCode(..))
 import System.IO.Temp (writeSystemTempFile)
-import System.Process (readProcessWithExitCode)
 
 import Data.List (intercalate)
 
@@ -86,16 +86,12 @@ data AutfiltResult =
 -- | autfilt (spot) plain wrapper
 autfiltCMD :: String -> [String] -> IO AutfiltResult
 autfiltCMD stdin args =
-  let executable = "autfilt" in
-  findExecutable executable
+  cmd "autfilt" stdin args
   >>= \case
-    Nothing -> return $ AutfiltException (executable ++ " not found")
-    Just autfilt -> do
-      (ec,out,err) <- readProcessWithExitCode autfilt args stdin
-      case ec of
-        ExitSuccess   -> return $ AutfiltSuccess out
-        ExitFailure 1 -> return AutfiltNoMatch
-        ExitFailure _ -> return $ AutfiltFailure err
+    Left err                    -> return $ AutfiltException err
+    Right (ExitSuccess,out,_)   -> return $ AutfiltSuccess out
+    Right (ExitFailure 1,_,_)   -> return $ AutfiltNoMatch
+    Right (ExitFailure _,_,err) -> return $ AutfiltFailure err
 
 
 -----------------------------------------------------------------------------

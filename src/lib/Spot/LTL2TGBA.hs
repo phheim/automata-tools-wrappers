@@ -17,9 +17,9 @@ module Spot.LTL2TGBA where
 
 -----------------------------------------------------------------------------
 
-import System.Directory (findExecutable)
+import Utils (cmd)
+
 import System.Exit (ExitCode(..))
-import System.Process (readProcessWithExitCode)
 
 -----------------------------------------------------------------------------
 type Error = String
@@ -33,15 +33,11 @@ data LTL2TGBAResult =
 -- | ltl2tgba (spot) plain wrapper
 ltl2tgbaCMD :: String -> [String] -> IO LTL2TGBAResult
 ltl2tgbaCMD stdin args =
-  let executable = "ltl2tgba" in
-  findExecutable executable
+  cmd "ltl2tgba" stdin args
   >>= \case
-    Nothing -> return $ LTL2TGBAException (executable ++ " not found")
-    Just ltl2tgba -> do
-      (ec,out,err) <- readProcessWithExitCode ltl2tgba args stdin
-      case ec of
-        ExitSuccess   -> return $ LTL2TGBASuccess out
-        ExitFailure _ -> return $ LTL2TGBAFailure err
+    Left err                    -> return $ LTL2TGBAException err
+    Right (ExitSuccess,out,_)   -> return $ LTL2TGBASuccess out
+    Right (ExitFailure _,_,err) -> return $ LTL2TGBAFailure err
 
 -----------------------------------------------------------------------------
 -- | TODO

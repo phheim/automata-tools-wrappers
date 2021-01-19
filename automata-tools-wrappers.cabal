@@ -31,6 +31,7 @@ library
     Spot.Randaut
 
   other-modules:
+    Utils
 
   hs-source-dirs:
     src/lib

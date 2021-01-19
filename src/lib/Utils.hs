@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------
 -- |
--- Module      :  Spot.Randaut
+-- Module      :  Utils
 -- Maintainer  :  Marvin Stenger
 --
 -- TODO
@@ -12,29 +12,21 @@
 {-# LANGUAGE NamedFieldPuns        #-}
 
 -----------------------------------------------------------------------------
-module Spot.Randaut
-  ( RandautResult(..)
-  , randautCMD
+module Utils
+  ( cmd
   ) where
 
 -----------------------------------------------------------------------------
 
-import Utils (cmd)
-
+import System.Directory (findExecutable)
 import System.Exit (ExitCode(..))
+import System.Process (readProcessWithExitCode)
 
 -----------------------------------------------------------------------------
-data RandautResult =
-    RandautSuccess String
-  | RandautFailure String
-  | RandautException String
-
------------------------------------------------------------------------------
--- | randaut (spot) plain wrapper
-randautCMD :: String -> [String] -> IO RandautResult
-randautCMD stdin args =
-  cmd "randaut" stdin args
+-- | cmd
+cmd :: String -> String -> [String] -> IO (Either String (ExitCode, String, String))
+cmd executable stdin args =
+  findExecutable executable
   >>= \case
-    Left err                    -> return $ RandautException err
-    Right (ExitSuccess,out,_)   -> return $ RandautSuccess out
-    Right (ExitFailure _,_,err) -> return $ RandautFailure err
+    Nothing  -> return $ Left $ executable ++ " not found"
+    Just exe -> Right <$> readProcessWithExitCode exe args stdin
